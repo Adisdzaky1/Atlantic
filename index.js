@@ -1,13 +1,15 @@
 const express = require('express');
 const { v4: uuidv4 } = require('uuid');
 const moment = require('moment');
+const path = require('path'); // tambahkan ini
 
 const app = express();
-app.use(express.urlencoded({ extended: true }));
-app.use(express.json());
 
+app.set('views', path.join(__dirname, 'views'));
 app.set('view engine', 'ejs');
 
+app.use(express.urlencoded({ extended: true }));
+app.use(express.json());
 // Helper untuk response
 function baseResponse(status, data, code, message) {
   const response = { status, code };
