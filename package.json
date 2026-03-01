@@ -10,6 +10,7 @@
   "dependencies": {
     "express": "^4.18.2",
     "cors": "latest",
+    "cloudscraper": "^4.6.0",
     "axios": "^1.7.9",
     "uuid": "^9.0.0",
     "moment": "^2.29.4",
