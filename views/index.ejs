@@ -1,100 +1,156 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="id">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=yes">
     <title>Atlantic API Documentation</title>
+    <!-- Tailwind CSS via CDN -->
     <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Font Awesome 6 -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <!-- Highlight.js untuk syntax highlighting -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/styles/github.min.css">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/highlight.min.js"></script>
     <script>hljs.highlightAll();</script>
     <style>
+        /* Animasi copy button */
         .copy-btn {
             transition: all 0.2s ease;
         }
         .copy-btn.copied {
             background-color: #10b981;
             color: white;
+            border-color: #10b981;
         }
+        .copy-btn.copied i {
+            color: white;
+        }
+        /* Smooth scroll */
+        html {
+            scroll-behavior: smooth;
+        }
+        /* Method badge */
         .method-post {
             background-color: #3b82f6;
             color: white;
-            font-weight: bold;
+            font-weight: 600;
             padding: 0.25rem 0.75rem;
             border-radius: 9999px;
             font-size: 0.75rem;
             text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+        /* Sidebar active */
+        .nav-link.active {
+            color: #3b82f6;
+            font-weight: 500;
+        }
+        /* Mobile menu */
+        #mobile-menu {
+            transition: transform 0.3s ease-in-out;
+        }
+        .menu-open {
+            transform: translateX(0);
         }
     </style>
 </head>
 <body class="bg-gray-50 text-gray-800 antialiased">
-    <div class="flex flex-col min-h-screen">
-        <!-- Header -->
-        <header class="bg-white border-b border-gray-200 sticky top-0 z-10">
-            <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4 flex justify-between items-center">
+
+    <!-- Header dengan Base URL dan tombol menu mobile -->
+    <header class="bg-white border-b border-gray-200 sticky top-0 z-20 shadow-sm">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex justify-between items-center h-16">
+                <!-- Logo dan Nama -->
                 <div class="flex items-center space-x-3">
                     <i class="fas fa-cloud-sun text-blue-500 text-2xl"></i>
                     <span class="font-bold text-xl text-gray-900">Atlantic API</span>
-                    <span class="bg-blue-100 text-blue-800 text-xs font-medium px-2.5 py-0.5 rounded-full">Mock</span>
+                    <span class="hidden sm:inline-block bg-blue-100 text-blue-800 text-xs font-medium px-2.5 py-0.5 rounded-full">Proxy</span>
                 </div>
-                <div class="hidden md:block text-sm">
+
+                <!-- Base URL (desktop) -->
+                <div class="hidden md:flex items-center text-sm">
                     <span class="text-gray-500 mr-2">Base URL:</span>
-                    <code class="bg-gray-100 px-3 py-1.5 rounded-lg text-gray-800 font-mono"><%= baseUrl %></code>
+                    <code class="bg-gray-100 px-3 py-1.5 rounded-lg text-gray-800 font-mono text-xs"><%= baseUrl %></code>
                 </div>
+
+                <!-- Tombol menu mobile -->
+                <button id="menu-toggle" class="md:hidden p-2 rounded-md text-gray-600 hover:text-gray-900 hover:bg-gray-100 focus:outline-none">
+                    <i class="fas fa-bars text-xl"></i>
+                </button>
             </div>
-        </header>
+        </div>
+    </header>
 
-        <div class="flex flex-1">
-            <!-- Sidebar -->
-            <aside class="hidden md:block w-64 bg-white border-r border-gray-200 p-6 overflow-y-auto sticky top-16 self-start max-h-screen">
-                <nav class="space-y-6">
-                    <div>
-                        <h3 class="text-xs font-semibold text-gray-500 uppercase tracking-wider mb-3">Deposit</h3>
-                        <ul class="space-y-2">
-                            <li><a href="#create-deposit" class="text-gray-700 hover:text-blue-600 text-sm flex items-center"><span class="w-2 h-2 bg-blue-500 rounded-full mr-2"></span>Create Deposit</a></li>
-                            <li><a href="#deposit-status" class="text-gray-700 hover:text-blue-600 text-sm flex items-center"><span class="w-2 h-2 bg-blue-500 rounded-full mr-2"></span>Check Status</a></li>
-                            <li><a href="#deposit-metode" class="text-gray-700 hover:text-blue-600 text-sm flex items-center"><span class="w-2 h-2 bg-blue-500 rounded-full mr-2"></span>Get Metode</a></li>
-                        </ul>
-                    </div>
-                    <div>
-                        <h3 class="text-xs font-semibold text-gray-500 uppercase tracking-wider mb-3">Transaksi</h3>
-                        <ul class="space-y-2">
-                            <li><a href="#create-transaksi" class="text-gray-700 hover:text-blue-600 text-sm flex items-center"><span class="w-2 h-2 bg-green-500 rounded-full mr-2"></span>Create Transaksi</a></li>
-                            <li><a href="#transaksi-status" class="text-gray-700 hover:text-blue-600 text-sm flex items-center"><span class="w-2 h-2 bg-green-500 rounded-full mr-2"></span>Check Status</a></li>
-                        </ul>
-                    </div>
-                </nav>
-            </aside>
+    <div class="flex relative">
+        <!-- Sidebar Overlay (mobile) -->
+        <div id="sidebar-overlay" class="fixed inset-0 bg-black bg-opacity-50 z-30 hidden md:hidden"></div>
 
-            <!-- Main Content -->
-            <main class="flex-1 max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-                <div class="mb-8">
-                    <h1 class="text-3xl font-bold text-gray-900 mb-2">API Documentation</h1>
-                    <p class="text-gray-600">Mock API server for Atlantic payment gateway. Use these endpoints to simulate deposit and transaction flows. All endpoints require <code class="bg-gray-100 px-1.5 py-0.5 rounded text-sm">api_key</code> parameter (any value works).</p>
+        <!-- Sidebar Navigasi -->
+        <aside id="sidebar" class="fixed md:sticky top-16 md:top-16 left-0 w-64 bg-white border-r border-gray-200 p-6 h-[calc(100vh-4rem)] overflow-y-auto z-40 transform -translate-x-full md:translate-x-0 transition-transform duration-300 ease-in-out shadow-lg md:shadow-none">
+            <div class="flex justify-between items-center md:hidden mb-4">
+                <span class="font-semibold text-gray-700">Menu</span>
+                <button id="close-menu" class="p-1 text-gray-500 hover:text-gray-700">
+                    <i class="fas fa-times text-xl"></i>
+                </button>
+            </div>
+            <nav class="space-y-6">
+                <div>
+                    <h3 class="text-xs font-semibold text-gray-500 uppercase tracking-wider mb-3 flex items-center">
+                        <i class="fas fa-credit-card mr-2 text-blue-500"></i> Deposit
+                    </h3>
+                    <ul class="space-y-2">
+                        <li><a href="#create-deposit" class="nav-link block text-gray-700 hover:text-blue-600 text-sm py-1 px-2 rounded-md hover:bg-blue-50 transition">Create Deposit</a></li>
+                        <li><a href="#deposit-status" class="nav-link block text-gray-700 hover:text-blue-600 text-sm py-1 px-2 rounded-md hover:bg-blue-50 transition">Check Status</a></li>
+                        <li><a href="#deposit-metode" class="nav-link block text-gray-700 hover:text-blue-600 text-sm py-1 px-2 rounded-md hover:bg-blue-50 transition">Get Metode</a></li>
+                    </ul>
                 </div>
+                <div>
+                    <h3 class="text-xs font-semibold text-gray-500 uppercase tracking-wider mb-3 flex items-center">
+                        <i class="fas fa-exchange-alt mr-2 text-green-500"></i> Transaksi
+                    </h3>
+                    <ul class="space-y-2">
+                        <li><a href="#create-transaksi" class="nav-link block text-gray-700 hover:text-blue-600 text-sm py-1 px-2 rounded-md hover:bg-blue-50 transition">Create Transaksi</a></li>
+                        <li><a href="#transaksi-status" class="nav-link block text-gray-700 hover:text-blue-600 text-sm py-1 px-2 rounded-md hover:bg-blue-50 transition">Check Status</a></li>
+                    </ul>
+                </div>
+            </nav>
+        </aside>
 
-                <!-- Endpoint Cards -->
-                <div class="space-y-8">
-                    <!-- Create Deposit -->
-                    <section id="create-deposit" class="scroll-mt-20">
-                        <div class="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
-                            <div class="bg-gray-50 px-6 py-4 border-b border-gray-200 flex flex-wrap items-center gap-3">
-                                <span class="method-post">POST</span>
-                                <h2 class="text-lg font-semibold text-gray-900 font-mono">/deposit/create</h2>
-                            </div>
-                            <div class="p-6 space-y-6">
-                                <p class="text-gray-700">Membuat permintaan deposit baru (QRIS).</p>
-                                
-                                <div>
-                                    <h3 class="text-sm font-semibold text-gray-900 mb-2 flex items-center">
-                                        <i class="fas fa-paper-plane text-blue-500 mr-2 text-xs"></i> Request Example (axios)
-                                    </h3>
-                                    <div class="relative bg-gray-50 rounded-lg border border-gray-200 p-4">
-                                        <button onclick="copyCode(this)" class="copy-btn absolute top-3 right-3 bg-white border border-gray-300 text-gray-600 hover:bg-gray-100 rounded-lg text-sm px-3 py-1.5 flex items-center gap-1">
-                                            <i class="far fa-clipboard"></i> <span>Salin</span>
-                                        </button>
-                                        <pre><code class="language-javascript">var axios = require('axios');
+        <!-- Konten Utama -->
+        <main class="flex-1 max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-8 w-full">
+            <!-- Base URL (mobile) -->
+            <div class="md:hidden mb-6 p-3 bg-gray-100 rounded-lg text-sm">
+                <span class="text-gray-600">Base URL:</span>
+                <code class="font-mono text-blue-600 break-all"><%= baseUrl %></code>
+            </div>
+
+            <div class="mb-8">
+                <h1 class="text-2xl sm:text-3xl font-bold text-gray-900 mb-2">Dokumentasi API</h1>
+                <p class="text-gray-600 text-sm sm:text-base">Server proxy untuk API Atlantic. Gunakan endpoint ini untuk menghindari pemblokiran dari panel Pterodactyl. Semua request akan diteruskan ke <code class="bg-gray-100 px-1.5 py-0.5 rounded text-xs">https://atlantich2h.com</code>. Anda wajib menyertakan parameter <code class="bg-gray-100 px-1.5 py-0.5 rounded text-xs">api_key</code> (isi dengan API key asli Anda).</p>
+            </div>
+
+            <!-- Daftar Endpoint (Card) -->
+            <div class="space-y-8">
+                <!-- Create Deposit -->
+                <section id="create-deposit" class="scroll-mt-24">
+                    <div class="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
+                        <div class="bg-gray-50 px-4 sm:px-6 py-4 border-b border-gray-200 flex flex-wrap items-center gap-3">
+                            <span class="method-post">POST</span>
+                            <h2 class="text-base sm:text-lg font-semibold text-gray-900 font-mono break-all">/deposit/create</h2>
+                        </div>
+                        <div class="p-4 sm:p-6 space-y-6">
+                            <p class="text-sm sm:text-base text-gray-700">Membuat permintaan deposit baru (QRIS).</p>
+                            
+                            <!-- Request Example -->
+                            <div>
+                                <h3 class="text-sm font-semibold text-gray-900 mb-2 flex items-center">
+                                    <i class="fas fa-paper-plane text-blue-500 mr-2 text-xs"></i> Contoh Request (axios)
+                                </h3>
+                                <div class="relative bg-gray-50 rounded-lg border border-gray-200 p-3 sm:p-4 text-xs sm:text-sm overflow-x-auto">
+                                    <button onclick="copyCode(this)" class="copy-btn absolute top-2 right-2 bg-white border border-gray-300 text-gray-600 hover:bg-gray-100 rounded-lg text-xs px-2 py-1 sm:px-3 sm:py-1.5 flex items-center gap-1 z-10">
+                                        <i class="far fa-clipboard"></i> <span class="hidden sm:inline">Salin</span>
+                                    </button>
+                                    <pre><code class="language-javascript">var axios = require('axios');
 var qs = require('qs');
 var data = qs.stringify({
   'api_key': 'YOUR_API_KEY',
@@ -112,98 +168,81 @@ var config = {
 axios(config)
 .then(res => console.log(JSON.stringify(res.data, null, 2)))
 .catch(err => console.log(err));</code></pre>
-                                    </div>
                                 </div>
+                            </div>
 
-                                <div>
-                                    <h3 class="text-sm font-semibold text-gray-900 mb-2 flex items-center">
-                                        <i class="fas fa-server text-green-500 mr-2 text-xs"></i> Response Example
-                                    </h3>
-                                    <div class="relative bg-gray-50 rounded-lg border border-gray-200 p-4">
-                                        <button onclick="copyCode(this)" class="copy-btn absolute top-3 right-3 bg-white border border-gray-300 text-gray-600 hover:bg-gray-100 rounded-lg text-sm px-3 py-1.5 flex items-center gap-1">
-                                            <i class="far fa-clipboard"></i> <span>Salin</span>
-                                        </button>
-                                        <pre><code class="language-json">{
+                            <!-- Response Example -->
+                            <div>
+                                <h3 class="text-sm font-semibold text-gray-900 mb-2 flex items-center">
+                                    <i class="fas fa-server text-green-500 mr-2 text-xs"></i> Contoh Respons
+                                </h3>
+                                <div class="relative bg-gray-50 rounded-lg border border-gray-200 p-3 sm:p-4 text-xs sm:text-sm overflow-x-auto">
+                                    <button onclick="copyCode(this)" class="copy-btn absolute top-2 right-2 bg-white border border-gray-300 text-gray-600 hover:bg-gray-100 rounded-lg text-xs px-2 py-1 sm:px-3 sm:py-1.5 flex items-center gap-1 z-10">
+                                        <i class="far fa-clipboard"></i> <span class="hidden sm:inline">Salin</span>
+                                    </button>
+                                    <pre><code class="language-json">{
   "status": true,
   "data": {
     "id": "d4b8e3a2-1f5e-4c7b-9a6c-3d2f1e5a8b7c",
     "reff_id": "testrevdep22",
     "nominal": 1,
     "qr_string": "xxxxxxxxxxxxxxxxxxxxx",
-    "qr_image": "https://atlantic-api-docs.vercel.app/qr/d4b8e3a2-1f5e-4c7b-9a6c-3d2f1e5a8b7c",
+    "qr_image": "https://atlantich2h.com/qr/d4b8e3a2-1f5e-4c7b-9a6c-3d2f1e5a8b7c",
     "status": "pending",
     "created_at": "2025-03-01 10:30:00",
     "expired_at": "2025-03-01 11:30:00"
   },
   "code": 200
 }</code></pre>
-                                    </div>
                                 </div>
+                            </div>
 
-                                <div class="bg-gray-50 rounded-lg border border-gray-200 p-4">
-                                    <h3 class="text-sm font-semibold text-gray-900 mb-3">Parameter</h3>
-                                    <div class="overflow-x-auto">
-                                        <table class="min-w-full text-sm">
-                                            <thead class="bg-gray-100 text-gray-700">
-                                                <tr>
-                                                    <th class="px-4 py-2 text-left font-medium">Nama</th>
-                                                    <th class="px-4 py-2 text-left font-medium">Tipe</th>
-                                                    <th class="px-4 py-2 text-left font-medium">Deskripsi</th>
-                                                </tr>
-                                            </thead>
-                                            <tbody class="divide-y divide-gray-200">
-                                                <tr>
-                                                    <td class="px-4 py-2 font-mono">api_key</td>
-                                                    <td class="px-4 py-2">string</td>
-                                                    <td class="px-4 py-2">API Key anda (bebas untuk mock)</td>
-                                                </tr>
-                                                <tr>
-                                                    <td class="px-4 py-2 font-mono">reff_id</td>
-                                                    <td class="px-4 py-2">string</td>
-                                                    <td class="px-4 py-2">ID referensi unik</td>
-                                                </tr>
-                                                <tr>
-                                                    <td class="px-4 py-2 font-mono">nominal</td>
-                                                    <td class="px-4 py-2">number</td>
-                                                    <td class="px-4 py-2">Jumlah deposit</td>
-                                                </tr>
-                                                <tr>
-                                                    <td class="px-4 py-2 font-mono">type</td>
-                                                    <td class="px-4 py-2">string</td>
-                                                    <td class="px-4 py-2">Tipe (ewallet)</td>
-                                                </tr>
-                                                <tr>
-                                                    <td class="px-4 py-2 font-mono">metode</td>
-                                                    <td class="px-4 py-2">string</td>
-                                                    <td class="px-4 py-2">Metode (qris, ovo, dll)</td>
-                                                </tr>
-                                            </tbody>
-                                        </table>
-                                    </div>
+                            <!-- Parameter Table -->
+                            <div class="bg-gray-50 rounded-lg border border-gray-200 p-4">
+                                <h3 class="text-sm font-semibold text-gray-900 mb-3">Parameter</h3>
+                                <div class="overflow-x-auto">
+                                    <table class="min-w-full text-xs sm:text-sm">
+                                        <thead class="bg-gray-100 text-gray-700">
+                                            <tr>
+                                                <th class="px-3 py-2 text-left font-medium">Nama</th>
+                                                <th class="px-3 py-2 text-left font-medium">Tipe</th>
+                                                <th class="px-3 py-2 text-left font-medium">Deskripsi</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody class="divide-y divide-gray-200">
+                                            <tr><td class="px-3 py-2 font-mono">api_key</td><td class="px-3 py-2">string</td><td class="px-3 py-2">API Key asli Anda</td></tr>
+                                            <tr><td class="px-3 py-2 font-mono">reff_id</td><td class="px-3 py-2">string</td><td class="px-3 py-2">ID referensi unik</td></tr>
+                                            <tr><td class="px-3 py-2 font-mono">nominal</td><td class="px-3 py-2">number</td><td class="px-3 py-2">Jumlah deposit</td></tr>
+                                            <tr><td class="px-3 py-2 font-mono">type</td><td class="px-3 py-2">string</td><td class="px-3 py-2">Tipe (ewallet)</td></tr>
+                                            <tr><td class="px-3 py-2 font-mono">metode</td><td class="px-3 py-2">string</td><td class="px-3 py-2">Metode (qris, ovo, dll)</td></tr>
+                                        </tbody>
+                                    </table>
                                 </div>
                             </div>
                         </div>
-                    </section>
+                    </div>
+                </section>
 
-                    <!-- Check Deposit Status -->
-                    <section id="deposit-status" class="scroll-mt-20">
-                        <div class="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
-                            <div class="bg-gray-50 px-6 py-4 border-b border-gray-200 flex flex-wrap items-center gap-3">
-                                <span class="method-post">POST</span>
-                                <h2 class="text-lg font-semibold text-gray-900 font-mono">/deposit/status</h2>
-                            </div>
-                            <div class="p-6 space-y-6">
-                                <p class="text-gray-700">Cek status deposit berdasarkan ID.</p>
-                                
-                                <div>
-                                    <h3 class="text-sm font-semibold text-gray-900 mb-2 flex items-center">
-                                        <i class="fas fa-paper-plane text-blue-500 mr-2 text-xs"></i> Request Example
-                                    </h3>
-                                    <div class="relative bg-gray-50 rounded-lg border border-gray-200 p-4">
-                                        <button onclick="copyCode(this)" class="copy-btn absolute top-3 right-3 bg-white border border-gray-300 text-gray-600 hover:bg-gray-100 rounded-lg text-sm px-3 py-1.5 flex items-center gap-1">
-                                            <i class="far fa-clipboard"></i> <span>Salin</span>
-                                        </button>
-                                        <pre><code class="language-javascript">var axios = require('axios');
+                <!-- Check Deposit Status -->
+                <section id="deposit-status" class="scroll-mt-24">
+                    <div class="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
+                        <div class="bg-gray-50 px-4 sm:px-6 py-4 border-b border-gray-200 flex flex-wrap items-center gap-3">
+                            <span class="method-post">POST</span>
+                            <h2 class="text-base sm:text-lg font-semibold text-gray-900 font-mono break-all">/deposit/status</h2>
+                        </div>
+                        <div class="p-4 sm:p-6 space-y-6">
+                            <p class="text-sm sm:text-base text-gray-700">Cek status deposit berdasarkan ID.</p>
+                            
+                            <!-- Request Example -->
+                            <div>
+                                <h3 class="text-sm font-semibold text-gray-900 mb-2 flex items-center">
+                                    <i class="fas fa-paper-plane text-blue-500 mr-2 text-xs"></i> Contoh Request
+                                </h3>
+                                <div class="relative bg-gray-50 rounded-lg border border-gray-200 p-3 sm:p-4 text-xs sm:text-sm overflow-x-auto">
+                                    <button onclick="copyCode(this)" class="copy-btn absolute top-2 right-2 bg-white border border-gray-300 text-gray-600 hover:bg-gray-100 rounded-lg text-xs px-2 py-1 sm:px-3 sm:py-1.5 flex items-center gap-1 z-10">
+                                        <i class="far fa-clipboard"></i> <span class="hidden sm:inline">Salin</span>
+                                    </button>
+                                    <pre><code class="language-javascript">var axios = require('axios');
 var qs = require('qs');
 var data = qs.stringify({
   'api_key': 'YOUR_API_KEY',
@@ -218,18 +257,19 @@ var config = {
 axios(config)
 .then(res => console.log(JSON.stringify(res.data, null, 2)))
 .catch(err => console.log(err));</code></pre>
-                                    </div>
                                 </div>
+                            </div>
 
-                                <div>
-                                    <h3 class="text-sm font-semibold text-gray-900 mb-2 flex items-center">
-                                        <i class="fas fa-server text-green-500 mr-2 text-xs"></i> Response Example
-                                    </h3>
-                                    <div class="relative bg-gray-50 rounded-lg border border-gray-200 p-4">
-                                        <button onclick="copyCode(this)" class="copy-btn absolute top-3 right-3 bg-white border border-gray-300 text-gray-600 hover:bg-gray-100 rounded-lg text-sm px-3 py-1.5 flex items-center gap-1">
-                                            <i class="far fa-clipboard"></i> <span>Salin</span>
-                                        </button>
-                                        <pre><code class="language-json">{
+                            <!-- Response Example -->
+                            <div>
+                                <h3 class="text-sm font-semibold text-gray-900 mb-2 flex items-center">
+                                    <i class="fas fa-server text-green-500 mr-2 text-xs"></i> Contoh Respons
+                                </h3>
+                                <div class="relative bg-gray-50 rounded-lg border border-gray-200 p-3 sm:p-4 text-xs sm:text-sm overflow-x-auto">
+                                    <button onclick="copyCode(this)" class="copy-btn absolute top-2 right-2 bg-white border border-gray-300 text-gray-600 hover:bg-gray-100 rounded-lg text-xs px-2 py-1 sm:px-3 sm:py-1.5 flex items-center gap-1 z-10">
+                                        <i class="far fa-clipboard"></i> <span class="hidden sm:inline">Salin</span>
+                                    </button>
+                                    <pre><code class="language-json">{
   "status": true,
   "data": {
     "id": "txIsgoOtPklEOZ5w1N7A",
@@ -244,58 +284,48 @@ axios(config)
   },
   "code": 200
 }</code></pre>
-                                    </div>
                                 </div>
+                            </div>
 
-                                <div class="bg-gray-50 rounded-lg border border-gray-200 p-4">
-                                    <h3 class="text-sm font-semibold text-gray-900 mb-3">Parameter</h3>
-                                    <div class="overflow-x-auto">
-                                        <table class="min-w-full text-sm">
-                                            <thead class="bg-gray-100 text-gray-700">
-                                                <tr>
-                                                    <th class="px-4 py-2 text-left font-medium">Nama</th>
-                                                    <th class="px-4 py-2 text-left font-medium">Tipe</th>
-                                                    <th class="px-4 py-2 text-left font-medium">Deskripsi</th>
-                                                </tr>
-                                            </thead>
-                                            <tbody class="divide-y divide-gray-200">
-                                                <tr>
-                                                    <td class="px-4 py-2 font-mono">api_key</td>
-                                                    <td class="px-4 py-2">string</td>
-                                                    <td class="px-4 py-2">API Key anda</td>
-                                                </tr>
-                                                <tr>
-                                                    <td class="px-4 py-2 font-mono">id</td>
-                                                    <td class="px-4 py-2">string</td>
-                                                    <td class="px-4 py-2">ID transaksi deposit</td>
-                                                </tr>
-                                            </tbody>
-                                        </table>
-                                    </div>
+                            <!-- Parameter Table -->
+                            <div class="bg-gray-50 rounded-lg border border-gray-200 p-4">
+                                <h3 class="text-sm font-semibold text-gray-900 mb-3">Parameter</h3>
+                                <div class="overflow-x-auto">
+                                    <table class="min-w-full text-xs sm:text-sm">
+                                        <thead class="bg-gray-100 text-gray-700">
+                                            <tr><th class="px-3 py-2 text-left font-medium">Nama</th><th class="px-3 py-2 text-left font-medium">Tipe</th><th class="px-3 py-2 text-left font-medium">Deskripsi</th></tr>
+                                        </thead>
+                                        <tbody class="divide-y divide-gray-200">
+                                            <tr><td class="px-3 py-2 font-mono">api_key</td><td class="px-3 py-2">string</td><td class="px-3 py-2">API Key asli Anda</td></tr>
+                                            <tr><td class="px-3 py-2 font-mono">id</td><td class="px-3 py-2">string</td><td class="px-3 py-2">ID transaksi deposit</td></tr>
+                                        </tbody>
+                                    </table>
                                 </div>
                             </div>
                         </div>
-                    </section>
+                    </div>
+                </section>
 
-                    <!-- Get Metode Deposit -->
-                    <section id="deposit-metode" class="scroll-mt-20">
-                        <div class="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
-                            <div class="bg-gray-50 px-6 py-4 border-b border-gray-200 flex flex-wrap items-center gap-3">
-                                <span class="method-post">POST</span>
-                                <h2 class="text-lg font-semibold text-gray-900 font-mono">/deposit/metode</h2>
-                            </div>
-                            <div class="p-6 space-y-6">
-                                <p class="text-gray-700">Mendapatkan daftar metode deposit yang tersedia.</p>
-                                
-                                <div>
-                                    <h3 class="text-sm font-semibold text-gray-900 mb-2 flex items-center">
-                                        <i class="fas fa-paper-plane text-blue-500 mr-2 text-xs"></i> Request Example
-                                    </h3>
-                                    <div class="relative bg-gray-50 rounded-lg border border-gray-200 p-4">
-                                        <button onclick="copyCode(this)" class="copy-btn absolute top-3 right-3 bg-white border border-gray-300 text-gray-600 hover:bg-gray-100 rounded-lg text-sm px-3 py-1.5 flex items-center gap-1">
-                                            <i class="far fa-clipboard"></i> <span>Salin</span>
-                                        </button>
-                                        <pre><code class="language-javascript">var axios = require('axios');
+                <!-- Get Metode Deposit -->
+                <section id="deposit-metode" class="scroll-mt-24">
+                    <div class="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
+                        <div class="bg-gray-50 px-4 sm:px-6 py-4 border-b border-gray-200 flex flex-wrap items-center gap-3">
+                            <span class="method-post">POST</span>
+                            <h2 class="text-base sm:text-lg font-semibold text-gray-900 font-mono break-all">/deposit/metode</h2>
+                        </div>
+                        <div class="p-4 sm:p-6 space-y-6">
+                            <p class="text-sm sm:text-base text-gray-700">Mendapatkan daftar metode deposit yang tersedia.</p>
+                            
+                            <!-- Request Example -->
+                            <div>
+                                <h3 class="text-sm font-semibold text-gray-900 mb-2 flex items-center">
+                                    <i class="fas fa-paper-plane text-blue-500 mr-2 text-xs"></i> Contoh Request
+                                </h3>
+                                <div class="relative bg-gray-50 rounded-lg border border-gray-200 p-3 sm:p-4 text-xs sm:text-sm overflow-x-auto">
+                                    <button onclick="copyCode(this)" class="copy-btn absolute top-2 right-2 bg-white border border-gray-300 text-gray-600 hover:bg-gray-100 rounded-lg text-xs px-2 py-1 sm:px-3 sm:py-1.5 flex items-center gap-1 z-10">
+                                        <i class="far fa-clipboard"></i> <span class="hidden sm:inline">Salin</span>
+                                    </button>
+                                    <pre><code class="language-javascript">var axios = require('axios');
 var qs = require('qs');
 var data = qs.stringify({
   'api_key': 'YOUR_API_KEY',
@@ -311,18 +341,19 @@ var config = {
 axios(config)
 .then(res => console.log(JSON.stringify(res.data, null, 2)))
 .catch(err => console.log(err));</code></pre>
-                                    </div>
                                 </div>
+                            </div>
 
-                                <div>
-                                    <h3 class="text-sm font-semibold text-gray-900 mb-2 flex items-center">
-                                        <i class="fas fa-server text-green-500 mr-2 text-xs"></i> Response Example
-                                    </h3>
-                                    <div class="relative bg-gray-50 rounded-lg border border-gray-200 p-4">
-                                        <button onclick="copyCode(this)" class="copy-btn absolute top-3 right-3 bg-white border border-gray-300 text-gray-600 hover:bg-gray-100 rounded-lg text-sm px-3 py-1.5 flex items-center gap-1">
-                                            <i class="far fa-clipboard"></i> <span>Salin</span>
-                                        </button>
-                                        <pre><code class="language-json">{
+                            <!-- Response Example -->
+                            <div>
+                                <h3 class="text-sm font-semibold text-gray-900 mb-2 flex items-center">
+                                    <i class="fas fa-server text-green-500 mr-2 text-xs"></i> Contoh Respons
+                                </h3>
+                                <div class="relative bg-gray-50 rounded-lg border border-gray-200 p-3 sm:p-4 text-xs sm:text-sm overflow-x-auto">
+                                    <button onclick="copyCode(this)" class="copy-btn absolute top-2 right-2 bg-white border border-gray-300 text-gray-600 hover:bg-gray-100 rounded-lg text-xs px-2 py-1 sm:px-3 sm:py-1.5 flex items-center gap-1 z-10">
+                                        <i class="far fa-clipboard"></i> <span class="hidden sm:inline">Salin</span>
+                                    </button>
+                                    <pre><code class="language-json">{
   "status": true,
   "data": [
     {
@@ -350,63 +381,49 @@ axios(config)
   ],
   "code": 200
 }</code></pre>
-                                    </div>
                                 </div>
+                            </div>
 
-                                <div class="bg-gray-50 rounded-lg border border-gray-200 p-4">
-                                    <h3 class="text-sm font-semibold text-gray-900 mb-3">Parameter</h3>
-                                    <div class="overflow-x-auto">
-                                        <table class="min-w-full text-sm">
-                                            <thead class="bg-gray-100 text-gray-700">
-                                                <tr>
-                                                    <th class="px-4 py-2 text-left font-medium">Nama</th>
-                                                    <th class="px-4 py-2 text-left font-medium">Tipe</th>
-                                                    <th class="px-4 py-2 text-left font-medium">Deskripsi</th>
-                                                </tr>
-                                            </thead>
-                                            <tbody class="divide-y divide-gray-200">
-                                                <tr>
-                                                    <td class="px-4 py-2 font-mono">api_key</td>
-                                                    <td class="px-4 py-2">string</td>
-                                                    <td class="px-4 py-2">API Key anda</td>
-                                                </tr>
-                                                <tr>
-                                                    <td class="px-4 py-2 font-mono">type</td>
-                                                    <td class="px-4 py-2">string</td>
-                                                    <td class="px-4 py-2">Filter tipe (ewallet)</td>
-                                                </tr>
-                                                <tr>
-                                                    <td class="px-4 py-2 font-mono">metode</td>
-                                                    <td class="px-4 py-2">string</td>
-                                                    <td class="px-4 py-2">Filter metode (opsional)</td>
-                                                </tr>
-                                            </tbody>
-                                        </table>
-                                    </div>
+                            <!-- Parameter Table -->
+                            <div class="bg-gray-50 rounded-lg border border-gray-200 p-4">
+                                <h3 class="text-sm font-semibold text-gray-900 mb-3">Parameter</h3>
+                                <div class="overflow-x-auto">
+                                    <table class="min-w-full text-xs sm:text-sm">
+                                        <thead class="bg-gray-100 text-gray-700">
+                                            <tr><th class="px-3 py-2 text-left font-medium">Nama</th><th class="px-3 py-2 text-left font-medium">Tipe</th><th class="px-3 py-2 text-left font-medium">Deskripsi</th></tr>
+                                        </thead>
+                                        <tbody class="divide-y divide-gray-200">
+                                            <tr><td class="px-3 py-2 font-mono">api_key</td><td class="px-3 py-2">string</td><td class="px-3 py-2">API Key asli Anda</td></tr>
+                                            <tr><td class="px-3 py-2 font-mono">type</td><td class="px-3 py-2">string</td><td class="px-3 py-2">Filter tipe (ewallet)</td></tr>
+                                            <tr><td class="px-3 py-2 font-mono">metode</td><td class="px-3 py-2">string</td><td class="px-3 py-2">Filter metode (opsional)</td></tr>
+                                        </tbody>
+                                    </table>
                                 </div>
                             </div>
                         </div>
-                    </section>
+                    </div>
+                </section>
 
-                    <!-- Create Transaksi -->
-                    <section id="create-transaksi" class="scroll-mt-20">
-                        <div class="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
-                            <div class="bg-gray-50 px-6 py-4 border-b border-gray-200 flex flex-wrap items-center gap-3">
-                                <span class="method-post">POST</span>
-                                <h2 class="text-lg font-semibold text-gray-900 font-mono">/transaksi/create</h2>
-                            </div>
-                            <div class="p-6 space-y-6">
-                                <p class="text-gray-700">Membuat transaksi prabayar (pulsa/data).</p>
-                                
-                                <div>
-                                    <h3 class="text-sm font-semibold text-gray-900 mb-2 flex items-center">
-                                        <i class="fas fa-paper-plane text-blue-500 mr-2 text-xs"></i> Request Example
-                                    </h3>
-                                    <div class="relative bg-gray-50 rounded-lg border border-gray-200 p-4">
-                                        <button onclick="copyCode(this)" class="copy-btn absolute top-3 right-3 bg-white border border-gray-300 text-gray-600 hover:bg-gray-100 rounded-lg text-sm px-3 py-1.5 flex items-center gap-1">
-                                            <i class="far fa-clipboard"></i> <span>Salin</span>
-                                        </button>
-                                        <pre><code class="language-javascript">var axios = require('axios');
+                <!-- Create Transaksi -->
+                <section id="create-transaksi" class="scroll-mt-24">
+                    <div class="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
+                        <div class="bg-gray-50 px-4 sm:px-6 py-4 border-b border-gray-200 flex flex-wrap items-center gap-3">
+                            <span class="method-post">POST</span>
+                            <h2 class="text-base sm:text-lg font-semibold text-gray-900 font-mono break-all">/transaksi/create</h2>
+                        </div>
+                        <div class="p-4 sm:p-6 space-y-6">
+                            <p class="text-sm sm:text-base text-gray-700">Membuat transaksi prabayar (pulsa/data).</p>
+                            
+                            <!-- Request Example -->
+                            <div>
+                                <h3 class="text-sm font-semibold text-gray-900 mb-2 flex items-center">
+                                    <i class="fas fa-paper-plane text-blue-500 mr-2 text-xs"></i> Contoh Request
+                                </h3>
+                                <div class="relative bg-gray-50 rounded-lg border border-gray-200 p-3 sm:p-4 text-xs sm:text-sm overflow-x-auto">
+                                    <button onclick="copyCode(this)" class="copy-btn absolute top-2 right-2 bg-white border border-gray-300 text-gray-600 hover:bg-gray-100 rounded-lg text-xs px-2 py-1 sm:px-3 sm:py-1.5 flex items-center gap-1 z-10">
+                                        <i class="far fa-clipboard"></i> <span class="hidden sm:inline">Salin</span>
+                                    </button>
+                                    <pre><code class="language-javascript">var axios = require('axios');
 var qs = require('qs');
 var data = qs.stringify({
   'api_key': 'YOUR_API_KEY',
@@ -423,18 +440,19 @@ var config = {
 axios(config)
 .then(res => console.log(JSON.stringify(res.data, null, 2)))
 .catch(err => console.log(err));</code></pre>
-                                    </div>
                                 </div>
+                            </div>
 
-                                <div>
-                                    <h3 class="text-sm font-semibold text-gray-900 mb-2 flex items-center">
-                                        <i class="fas fa-server text-green-500 mr-2 text-xs"></i> Response Example
-                                    </h3>
-                                    <div class="relative bg-gray-50 rounded-lg border border-gray-200 p-4">
-                                        <button onclick="copyCode(this)" class="copy-btn absolute top-3 right-3 bg-white border border-gray-300 text-gray-600 hover:bg-gray-100 rounded-lg text-sm px-3 py-1.5 flex items-center gap-1">
-                                            <i class="far fa-clipboard"></i> <span>Salin</span>
-                                        </button>
-                                        <pre><code class="language-json">{
+                            <!-- Response Example -->
+                            <div>
+                                <h3 class="text-sm font-semibold text-gray-900 mb-2 flex items-center">
+                                    <i class="fas fa-server text-green-500 mr-2 text-xs"></i> Contoh Respons
+                                </h3>
+                                <div class="relative bg-gray-50 rounded-lg border border-gray-200 p-3 sm:p-4 text-xs sm:text-sm overflow-x-auto">
+                                    <button onclick="copyCode(this)" class="copy-btn absolute top-2 right-2 bg-white border border-gray-300 text-gray-600 hover:bg-gray-100 rounded-lg text-xs px-2 py-1 sm:px-3 sm:py-1.5 flex items-center gap-1 z-10">
+                                        <i class="far fa-clipboard"></i> <span class="hidden sm:inline">Salin</span>
+                                    </button>
+                                    <pre><code class="language-json">{
   "status": true,
   "message": "Transaksi diproses",
   "data": {
@@ -450,68 +468,50 @@ axios(config)
   },
   "code": 202
 }</code></pre>
-                                    </div>
                                 </div>
+                            </div>
 
-                                <div class="bg-gray-50 rounded-lg border border-gray-200 p-4">
-                                    <h3 class="text-sm font-semibold text-gray-900 mb-3">Parameter</h3>
-                                    <div class="overflow-x-auto">
-                                        <table class="min-w-full text-sm">
-                                            <thead class="bg-gray-100 text-gray-700">
-                                                <tr>
-                                                    <th class="px-4 py-2 text-left font-medium">Nama</th>
-                                                    <th class="px-4 py-2 text-left font-medium">Tipe</th>
-                                                    <th class="px-4 py-2 text-left font-medium">Deskripsi</th>
-                                                </tr>
-                                            </thead>
-                                            <tbody class="divide-y divide-gray-200">
-                                                <tr>
-                                                    <td class="px-4 py-2 font-mono">api_key</td>
-                                                    <td class="px-4 py-2">string</td>
-                                                    <td class="px-4 py-2">API Key anda</td>
-                                                </tr>
-                                                <tr>
-                                                    <td class="px-4 py-2 font-mono">code</td>
-                                                    <td class="px-4 py-2">string</td>
-                                                    <td class="px-4 py-2">Kode layanan (KODE1, KODE2, dll)</td>
-                                                </tr>
-                                                <tr>
-                                                    <td class="px-4 py-2 font-mono">reff_id</td>
-                                                    <td class="px-4 py-2">string</td>
-                                                    <td class="px-4 py-2">ID referensi unik</td>
-                                                </tr>
-                                                <tr>
-                                                    <td class="px-4 py-2 font-mono">target</td>
-                                                    <td class="px-4 py-2">string</td>
-                                                    <td class="px-4 py-2">Nomor tujuan</td>
-                                                </tr>
-                                            </tbody>
-                                        </table>
-                                    </div>
+                            <!-- Parameter Table -->
+                            <div class="bg-gray-50 rounded-lg border border-gray-200 p-4">
+                                <h3 class="text-sm font-semibold text-gray-900 mb-3">Parameter</h3>
+                                <div class="overflow-x-auto">
+                                    <table class="min-w-full text-xs sm:text-sm">
+                                        <thead class="bg-gray-100 text-gray-700">
+                                            <tr><th class="px-3 py-2 text-left font-medium">Nama</th><th class="px-3 py-2 text-left font-medium">Tipe</th><th class="px-3 py-2 text-left font-medium">Deskripsi</th></tr>
+                                        </thead>
+                                        <tbody class="divide-y divide-gray-200">
+                                            <tr><td class="px-3 py-2 font-mono">api_key</td><td class="px-3 py-2">string</td><td class="px-3 py-2">API Key asli Anda</td></tr>
+                                            <tr><td class="px-3 py-2 font-mono">code</td><td class="px-3 py-2">string</td><td class="px-3 py-2">Kode layanan (KODE1, KODE2, dll)</td></tr>
+                                            <tr><td class="px-3 py-2 font-mono">reff_id</td><td class="px-3 py-2">string</td><td class="px-3 py-2">ID referensi unik</td></tr>
+                                            <tr><td class="px-3 py-2 font-mono">target</td><td class="px-3 py-2">string</td><td class="px-3 py-2">Nomor tujuan</td></tr>
+                                        </tbody>
+                                    </table>
                                 </div>
                             </div>
                         </div>
-                    </section>
+                    </div>
+                </section>
 
-                    <!-- Check Transaksi Status -->
-                    <section id="transaksi-status" class="scroll-mt-20">
-                        <div class="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
-                            <div class="bg-gray-50 px-6 py-4 border-b border-gray-200 flex flex-wrap items-center gap-3">
-                                <span class="method-post">POST</span>
-                                <h2 class="text-lg font-semibold text-gray-900 font-mono">/transaksi/status</h2>
-                            </div>
-                            <div class="p-6 space-y-6">
-                                <p class="text-gray-700">Cek status transaksi berdasarkan ID.</p>
-                                
-                                <div>
-                                    <h3 class="text-sm font-semibold text-gray-900 mb-2 flex items-center">
-                                        <i class="fas fa-paper-plane text-blue-500 mr-2 text-xs"></i> Request Example
-                                    </h3>
-                                    <div class="relative bg-gray-50 rounded-lg border border-gray-200 p-4">
-                                        <button onclick="copyCode(this)" class="copy-btn absolute top-3 right-3 bg-white border border-gray-300 text-gray-600 hover:bg-gray-100 rounded-lg text-sm px-3 py-1.5 flex items-center gap-1">
-                                            <i class="far fa-clipboard"></i> <span>Salin</span>
-                                        </button>
-                                        <pre><code class="language-javascript">var axios = require('axios');
+                <!-- Check Transaksi Status -->
+                <section id="transaksi-status" class="scroll-mt-24">
+                    <div class="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
+                        <div class="bg-gray-50 px-4 sm:px-6 py-4 border-b border-gray-200 flex flex-wrap items-center gap-3">
+                            <span class="method-post">POST</span>
+                            <h2 class="text-base sm:text-lg font-semibold text-gray-900 font-mono break-all">/transaksi/status</h2>
+                        </div>
+                        <div class="p-4 sm:p-6 space-y-6">
+                            <p class="text-sm sm:text-base text-gray-700">Cek status transaksi berdasarkan ID.</p>
+                            
+                            <!-- Request Example -->
+                            <div>
+                                <h3 class="text-sm font-semibold text-gray-900 mb-2 flex items-center">
+                                    <i class="fas fa-paper-plane text-blue-500 mr-2 text-xs"></i> Contoh Request
+                                </h3>
+                                <div class="relative bg-gray-50 rounded-lg border border-gray-200 p-3 sm:p-4 text-xs sm:text-sm overflow-x-auto">
+                                    <button onclick="copyCode(this)" class="copy-btn absolute top-2 right-2 bg-white border border-gray-300 text-gray-600 hover:bg-gray-100 rounded-lg text-xs px-2 py-1 sm:px-3 sm:py-1.5 flex items-center gap-1 z-10">
+                                        <i class="far fa-clipboard"></i> <span class="hidden sm:inline">Salin</span>
+                                    </button>
+                                    <pre><code class="language-javascript">var axios = require('axios');
 var qs = require('qs');
 var data = qs.stringify({
   'api_key': 'YOUR_API_KEY',
@@ -527,18 +527,19 @@ var config = {
 axios(config)
 .then(res => console.log(JSON.stringify(res.data, null, 2)))
 .catch(err => console.log(err));</code></pre>
-                                    </div>
                                 </div>
+                            </div>
 
-                                <div>
-                                    <h3 class="text-sm font-semibold text-gray-900 mb-2 flex items-center">
-                                        <i class="fas fa-server text-green-500 mr-2 text-xs"></i> Response Example
-                                    </h3>
-                                    <div class="relative bg-gray-50 rounded-lg border border-gray-200 p-4">
-                                        <button onclick="copyCode(this)" class="copy-btn absolute top-3 right-3 bg-white border border-gray-300 text-gray-600 hover:bg-gray-100 rounded-lg text-sm px-3 py-1.5 flex items-center gap-1">
-                                            <i class="far fa-clipboard"></i> <span>Salin</span>
-                                        </button>
-                                        <pre><code class="language-json">{
+                            <!-- Response Example -->
+                            <div>
+                                <h3 class="text-sm font-semibold text-gray-900 mb-2 flex items-center">
+                                    <i class="fas fa-server text-green-500 mr-2 text-xs"></i> Contoh Respons
+                                </h3>
+                                <div class="relative bg-gray-50 rounded-lg border border-gray-200 p-3 sm:p-4 text-xs sm:text-sm overflow-x-auto">
+                                    <button onclick="copyCode(this)" class="copy-btn absolute top-2 right-2 bg-white border border-gray-300 text-gray-600 hover:bg-gray-100 rounded-lg text-xs px-2 py-1 sm:px-3 sm:py-1.5 flex items-center gap-1 z-10">
+                                        <i class="far fa-clipboard"></i> <span class="hidden sm:inline">Salin</span>
+                                    </button>
+                                    <pre><code class="language-json">{
   "status": true,
   "data": {
     "id": "IDTrxExample123456789",
@@ -553,62 +554,97 @@ axios(config)
   },
   "code": 200
 }</code></pre>
-                                    </div>
                                 </div>
+                            </div>
 
-                                <div class="bg-gray-50 rounded-lg border border-gray-200 p-4">
-                                    <h3 class="text-sm font-semibold text-gray-900 mb-3">Parameter</h3>
-                                    <div class="overflow-x-auto">
-                                        <table class="min-w-full text-sm">
-                                            <thead class="bg-gray-100 text-gray-700">
-                                                <tr>
-                                                    <th class="px-4 py-2 text-left font-medium">Nama</th>
-                                                    <th class="px-4 py-2 text-left font-medium">Tipe</th>
-                                                    <th class="px-4 py-2 text-left font-medium">Deskripsi</th>
-                                                </tr>
-                                            </thead>
-                                            <tbody class="divide-y divide-gray-200">
-                                                <tr>
-                                                    <td class="px-4 py-2 font-mono">api_key</td>
-                                                    <td class="px-4 py-2">string</td>
-                                                    <td class="px-4 py-2">API Key anda</td>
-                                                </tr>
-                                                <tr>
-                                                    <td class="px-4 py-2 font-mono">id</td>
-                                                    <td class="px-4 py-2">string</td>
-                                                    <td class="px-4 py-2">ID transaksi</td>
-                                                </tr>
-                                                <tr>
-                                                    <td class="px-4 py-2 font-mono">type</td>
-                                                    <td class="px-4 py-2">string</td>
-                                                    <td class="px-4 py-2">Tipe transaksi (prabayar)</td>
-                                                </tr>
-                                            </tbody>
-                                        </table>
-                                    </div>
+                            <!-- Parameter Table -->
+                            <div class="bg-gray-50 rounded-lg border border-gray-200 p-4">
+                                <h3 class="text-sm font-semibold text-gray-900 mb-3">Parameter</h3>
+                                <div class="overflow-x-auto">
+                                    <table class="min-w-full text-xs sm:text-sm">
+                                        <thead class="bg-gray-100 text-gray-700">
+                                            <tr><th class="px-3 py-2 text-left font-medium">Nama</th><th class="px-3 py-2 text-left font-medium">Tipe</th><th class="px-3 py-2 text-left font-medium">Deskripsi</th></tr>
+                                        </thead>
+                                        <tbody class="divide-y divide-gray-200">
+                                            <tr><td class="px-3 py-2 font-mono">api_key</td><td class="px-3 py-2">string</td><td class="px-3 py-2">API Key asli Anda</td></tr>
+                                            <tr><td class="px-3 py-2 font-mono">id</td><td class="px-3 py-2">string</td><td class="px-3 py-2">ID transaksi</td></tr>
+                                            <tr><td class="px-3 py-2 font-mono">type</td><td class="px-3 py-2">string</td><td class="px-3 py-2">Tipe transaksi (prabayar)</td></tr>
+                                        </tbody>
+                                    </table>
                                 </div>
                             </div>
                         </div>
-                    </section>
-                </div>
-            </main>
-        </div>
-
-        <footer class="bg-white border-t border-gray-200 mt-12 py-6">
-            <div class="max-w-7xl mx-auto px-4 text-center text-gray-500 text-sm">
-                &copy; 2025 Atlantic API. All rights reserved. For documentation purposes only.
+                    </div>
+                </section>
             </div>
-        </footer>
+        </main>
     </div>
 
-    <!-- Script untuk tombol copy -->
+    <!-- Footer -->
+    <footer class="bg-white border-t border-gray-200 mt-12 py-6">
+        <div class="max-w-7xl mx-auto px-4 text-center text-gray-500 text-xs sm:text-sm">
+            &copy; 2025 Atlantic API Proxy. Digunakan untuk menghindari blokir di panel Pterodactyl.
+        </div>
+    </footer>
+
+    <!-- JavaScript untuk Mobile Menu dan Copy -->
     <script>
+        // Toggle sidebar mobile
+        const menuToggle = document.getElementById('menu-toggle');
+        const closeMenu = document.getElementById('close-menu');
+        const sidebar = document.getElementById('sidebar');
+        const overlay = document.getElementById('sidebar-overlay');
+
+        function openMenu() {
+            sidebar.classList.remove('-translate-x-full');
+            overlay.classList.remove('hidden');
+            document.body.style.overflow = 'hidden';
+        }
+
+        function closeMenuFunc() {
+            sidebar.classList.add('-translate-x-full');
+            overlay.classList.add('hidden');
+            document.body.style.overflow = '';
+        }
+
+        if (menuToggle) {
+            menuToggle.addEventListener('click', openMenu);
+        }
+        if (closeMenu) {
+            closeMenu.addEventListener('click', closeMenuFunc);
+        }
+        if (overlay) {
+            overlay.addEventListener('click', closeMenuFunc);
+        }
+
+        // Highlight active nav link berdasarkan scroll
+        const sections = document.querySelectorAll('section');
+        const navLinks = document.querySelectorAll('.nav-link');
+
+        window.addEventListener('scroll', () => {
+            let current = '';
+            sections.forEach(section => {
+                const sectionTop = section.offsetTop - 100;
+                if (pageYOffset >= sectionTop) {
+                    current = section.getAttribute('id');
+                }
+            });
+
+            navLinks.forEach(link => {
+                link.classList.remove('active', 'text-blue-600', 'font-medium');
+                if (link.getAttribute('href') === `#${current}`) {
+                    link.classList.add('active', 'text-blue-600', 'font-medium');
+                }
+            });
+        });
+
+        // Copy code function
         function copyCode(button) {
             const codeBlock = button.parentElement.querySelector('code');
             const text = codeBlock.innerText;
             navigator.clipboard.writeText(text).then(() => {
                 const originalHTML = button.innerHTML;
-                button.innerHTML = '<i class="fas fa-check"></i> <span>Tersalin</span>';
+                button.innerHTML = '<i class="fas fa-check"></i> <span class="hidden sm:inline">Tersalin</span>';
                 button.classList.add('copied');
                 setTimeout(() => {
                     button.innerHTML = originalHTML;
@@ -616,17 +652,6 @@ axios(config)
                 }, 2000);
             });
         }
-
-        // Smooth scroll untuk anchor links
-        document.querySelectorAll('a[href^="#"]').forEach(anchor => {
-            anchor.addEventListener('click', function (e) {
-                e.preventDefault();
-                const target = document.querySelector(this.getAttribute('href'));
-                if (target) {
-                    target.scrollIntoView({ behavior: 'smooth' });
-                }
-            });
-        });
     </script>
 </body>
 </html>
