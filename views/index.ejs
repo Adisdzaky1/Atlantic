@@ -1,0 +1,297 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Atlantic API Documentation</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/styles/github.min.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.8.0/highlight.min.js"></script>
+    <script>hljs.highlightAll();</script>
+</head>
+<body class="bg-gray-50 text-gray-800">
+    <nav class="bg-white shadow-sm border-b">
+        <div class="max-w-7xl mx-auto px-4 py-4 flex justify-between items-center">
+            <div class="flex items-center space-x-2">
+                <i class="fas fa-cloud-sun text-blue-500 text-2xl"></i>
+                <span class="font-bold text-xl">Atlantic API</span>
+            </div>
+            <div class="text-sm text-gray-500">
+                Base URL: <code class="bg-gray-100 px-2 py-1 rounded"><%= baseUrl %></code>
+            </div>
+        </div>
+    </nav>
+
+    <main class="max-w-7xl mx-auto px-4 py-8">
+        <div class="mb-8">
+            <h1 class="text-3xl font-bold mb-2">API Documentation</h1>
+            <p class="text-gray-600">Mock API server for Atlantic payment gateway. Use these endpoints to simulate deposit and transaction flows.</p>
+            <p class="text-gray-600 mt-2">All endpoints require <code>api_key</code> parameter (any value works).</p>
+        </div>
+
+        <div class="grid gap-8">
+            <!-- Create Deposit -->
+            <div class="bg-white rounded-xl shadow-md overflow-hidden border">
+                <div class="bg-blue-50 px-6 py-4 border-b flex items-center">
+                    <span class="bg-blue-600 text-white text-xs font-bold px-2 py-1 rounded mr-3">POST</span>
+                    <h2 class="text-lg font-semibold">/deposit/create</h2>
+                </div>
+                <div class="p-6 space-y-4">
+                    <p class="text-gray-600">Membuat permintaan deposit baru (QRIS).</p>
+                    <div>
+                        <h3 class="text-sm font-semibold uppercase tracking-wide text-gray-500 mb-2">Request Example (axios)</h3>
+                        <pre><code class="language-javascript">var axios = require('axios');
+var qs = require('qs');
+var data = qs.stringify({
+  'api_key': 'YOUR_API_KEY',
+  'reff_id': 'testrevdep22',
+  'nominal': '1',
+  'type': 'ewallet',
+  'metode': 'qris'
+});
+var config = {
+  method: 'post',
+  url: '<%= baseUrl %>/deposit/create',
+  headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+  data: data
+};
+axios(config)
+.then(res => console.log(JSON.stringify(res.data, null, 2)))
+.catch(err => console.log(err));</code></pre>
+                    </div>
+                    <div>
+                        <h3 class="text-sm font-semibold uppercase tracking-wide text-gray-500 mb-2">Response Example</h3>
+                        <pre><code class="language-json">{
+  "status": true,
+  "data": {
+    "id": "d4b8e3a2-1f5e-4c7b-9a6c-3d2f1e5a8b7c",
+    "reff_id": "testrevdep22",
+    "nominal": 1,
+    "qr_string": "xxxxxxxxxxxxxxxxxxxxx",
+    "qr_image": "https://atlantic-api-docs.vercel.app/qr/d4b8e3a2-1f5e-4c7b-9a6c-3d2f1e5a8b7c",
+    "status": "pending",
+    "created_at": "2025-03-01 10:30:00",
+    "expired_at": "2025-03-01 11:30:00"
+  },
+  "code": 200
+}</code></pre>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Check Deposit Status -->
+            <div class="bg-white rounded-xl shadow-md overflow-hidden border">
+                <div class="bg-blue-50 px-6 py-4 border-b flex items-center">
+                    <span class="bg-blue-600 text-white text-xs font-bold px-2 py-1 rounded mr-3">POST</span>
+                    <h2 class="text-lg font-semibold">/deposit/status</h2>
+                </div>
+                <div class="p-6 space-y-4">
+                    <p class="text-gray-600">Cek status deposit berdasarkan ID.</p>
+                    <div>
+                        <h3 class="text-sm font-semibold uppercase tracking-wide text-gray-500 mb-2">Request Example</h3>
+                        <pre><code class="language-javascript">var axios = require('axios');
+var qs = require('qs');
+var data = qs.stringify({
+  'api_key': 'YOUR_API_KEY',
+  'id': 'txIsgoOtPklEOZ5w1N7A'
+});
+var config = {
+  method: 'post',
+  url: '<%= baseUrl %>/deposit/status',
+  headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+  data: data
+};
+axios(config)
+.then(res => console.log(JSON.stringify(res.data, null, 2)))
+.catch(err => console.log(err));</code></pre>
+                    </div>
+                    <div>
+                        <h3 class="text-sm font-semibold uppercase tracking-wide text-gray-500 mb-2">Response Example</h3>
+                        <pre><code class="language-json">{
+  "status": true,
+  "data": {
+    "id": "txIsgoOtPklEOZ5w1N7A",
+    "reff_id": "testrevdep22",
+    "nominal": "20000",
+    "tambahan": "0",
+    "fee": "300",
+    "get_balance": "19700",
+    "metode": "E-Wallet DANA",
+    "status": "success",
+    "created_at": "2024-02-13 14:25:22"
+  },
+  "code": 200
+}</code></pre>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Get Metode Deposit -->
+            <div class="bg-white rounded-xl shadow-md overflow-hidden border">
+                <div class="bg-blue-50 px-6 py-4 border-b flex items-center">
+                    <span class="bg-blue-600 text-white text-xs font-bold px-2 py-1 rounded mr-3">POST</span>
+                    <h2 class="text-lg font-semibold">/deposit/metode</h2>
+                </div>
+                <div class="p-6 space-y-4">
+                    <p class="text-gray-600">Mendapatkan daftar metode deposit yang tersedia.</p>
+                    <div>
+                        <h3 class="text-sm font-semibold uppercase tracking-wide text-gray-500 mb-2">Request Example</h3>
+                        <pre><code class="language-javascript">var axios = require('axios');
+var qs = require('qs');
+var data = qs.stringify({
+  'api_key': 'YOUR_API_KEY',
+  'type': 'ewallet',
+  'metode': 'qris'
+});
+var config = {
+  method: 'post',
+  url: '<%= baseUrl %>/deposit/metode',
+  headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+  data: data
+};
+axios(config)
+.then(res => console.log(JSON.stringify(res.data, null, 2)))
+.catch(err => console.log(err));</code></pre>
+                    </div>
+                    <div>
+                        <h3 class="text-sm font-semibold uppercase tracking-wide text-gray-500 mb-2">Response Example</h3>
+                        <pre><code class="language-json">{
+  "status": true,
+  "data": [
+    {
+      "metode": "OVO",
+      "type": "ewallet",
+      "name": "OVO",
+      "min": "2000",
+      "max": "5000000",
+      "fee": "0",
+      "fee_persen": "1.65",
+      "status": "aktif",
+      "img_url": "https://s3.atlantic-pedia.co.id/1699928509_175ae776a7ce3eb6ea57.png"
+    },
+    {
+      "metode": "QRIS",
+      "type": "ewallet",
+      "name": "QRIS",
+      "min": "1",
+      "max": "5000000",
+      "fee": "200",
+      "fee_persen": "0.7",
+      "status": "aktif",
+      "img_url": "https://s3.atlantic-pedia.co.id/1699928452_bf58d7f0dd0491fed9b1.png"
+    }
+  ],
+  "code": 200
+}</code></pre>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Create Transaksi -->
+            <div class="bg-white rounded-xl shadow-md overflow-hidden border">
+                <div class="bg-blue-50 px-6 py-4 border-b flex items-center">
+                    <span class="bg-blue-600 text-white text-xs font-bold px-2 py-1 rounded mr-3">POST</span>
+                    <h2 class="text-lg font-semibold">/transaksi/create</h2>
+                </div>
+                <div class="p-6 space-y-4">
+                    <p class="text-gray-600">Membuat transaksi prabayar (pulsa/data).</p>
+                    <div>
+                        <h3 class="text-sm font-semibold uppercase tracking-wide text-gray-500 mb-2">Request Example</h3>
+                        <pre><code class="language-javascript">var axios = require('axios');
+var qs = require('qs');
+var data = qs.stringify({
+  'api_key': 'YOUR_API_KEY',
+  'code': 'KODE1',
+  'reff_id': 'reffexample123',
+  'target': '0856123456789'
+});
+var config = {
+  method: 'post',
+  url: '<%= baseUrl %>/transaksi/create',
+  headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+  data: data
+};
+axios(config)
+.then(res => console.log(JSON.stringify(res.data, null, 2)))
+.catch(err => console.log(err));</code></pre>
+                    </div>
+                    <div>
+                        <h3 class="text-sm font-semibold uppercase tracking-wide text-gray-500 mb-2">Response Example</h3>
+                        <pre><code class="language-json">{
+  "status": true,
+  "message": "Transaksi diproses",
+  "data": {
+    "id": "a1b2c3d4-e5f6-7890-1234-567890abcdef",
+    "reff_id": "reffexample123",
+    "layanan": "Data 1 GB / 30 Hari",
+    "code": "KODE1",
+    "target": "0856123456789",
+    "price": "58507",
+    "sn": null,
+    "status": "pending",
+    "created_at": "2025-03-01 10:30:00"
+  },
+  "code": 202
+}</code></pre>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Check Transaksi Status -->
+            <div class="bg-white rounded-xl shadow-md overflow-hidden border">
+                <div class="bg-blue-50 px-6 py-4 border-b flex items-center">
+                    <span class="bg-blue-600 text-white text-xs font-bold px-2 py-1 rounded mr-3">POST</span>
+                    <h2 class="text-lg font-semibold">/transaksi/status</h2>
+                </div>
+                <div class="p-6 space-y-4">
+                    <p class="text-gray-600">Cek status transaksi berdasarkan ID.</p>
+                    <div>
+                        <h3 class="text-sm font-semibold uppercase tracking-wide text-gray-500 mb-2">Request Example</h3>
+                        <pre><code class="language-javascript">var axios = require('axios');
+var qs = require('qs');
+var data = qs.stringify({
+  'api_key': 'YOUR_API_KEY',
+  'id': 'IDTrxExample123456789',
+  'type': 'prabayar'
+});
+var config = {
+  method: 'post',
+  url: '<%= baseUrl %>/transaksi/status',
+  headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+  data: data
+};
+axios(config)
+.then(res => console.log(JSON.stringify(res.data, null, 2)))
+.catch(err => console.log(err));</code></pre>
+                    </div>
+                    <div>
+                        <h3 class="text-sm font-semibold uppercase tracking-wide text-gray-500 mb-2">Response Example</h3>
+                        <pre><code class="language-json">{
+  "status": true,
+  "data": {
+    "id": "IDTrxExample123456789",
+    "reff_id": "reffexample123",
+    "layanan": "Data 10 GB / 30 Hari",
+    "code": "KODE1",
+    "target": "0856123456789",
+    "price": "58507",
+    "sn": "xxxxxxxxxxxx",
+    "status": "success",
+    "created_at": "2023-12-26 11:00:20"
+  },
+  "code": 200
+}</code></pre>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <footer class="bg-white border-t mt-12 py-6">
+        <div class="max-w-7xl mx-auto px-4 text-center text-gray-500 text-sm">
+            &copy; 2025 Atlantic API. All rights reserved. For documentation purposes only.
+        </div>
+    </footer>
+</body>
+</html>
