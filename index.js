@@ -1,7 +1,6 @@
 const express = require('express');
 const path = require('path');
-const axios = require('axios');
-const qs = require('qs');
+const cloudscraper = require('cloudscraper');
 
 const app = express();
 
@@ -19,40 +18,51 @@ app.get('/', (req, res) => {
     res.render('index', { baseUrl });
 });
 
-// Fungsi untuk meneruskan request ke Atlantic
+// Fungsi untuk meneruskan request ke Atlantic menggunakan cloudscraper
 async function forwardRequest(req, res, endpoint) {
     try {
-        // Data dari request body (sudah di-parse oleh express)
-        const requestData = req.body;
+        const requestData = req.body; // Data dari request client
 
-        // Stringify data menggunakan qs (seperti di contoh)
-        const formData = qs.stringify(requestData);
-
-        // Kirim POST ke Atlantic
-        const response = await axios.post(`https://atlantich2h.com/${endpoint}`, formData, {
+        // Kirim POST dengan cloudscraper (otomatis menangani form-urlencoded)
+        const response = await cloudscraper.post(`https://atlantich2h.com/${endpoint}`, {
+            form: requestData, // Cloudscraper akan mengubah ke form-urlencoded
             headers: {
-                'Content-Type': 'application/x-www-form-urlencoded',
+                'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36'
             },
+            timeout: 30000 // 30 detik
         });
 
-        // Kirim respons dari Atlantic ke client (tanpa perubahan)
-        res.status(response.status).json(response.data);
+        // Coba parse sebagai JSON, jika gagal kirim sebagai teks biasa
+        try {
+            const json = JSON.parse(response);
+            res.json(json);
+        } catch {
+            res.send(response);
+        }
     } catch (error) {
-        if (error.response) {
-            // Ada respons error dari Atlantic (misal 400, 401, dll)
-            res.status(error.response.status).json(error.response.data);
+        console.error('Cloudscraper error:', error);
+
+        // Jika ada respons error dari Atlantic (misal 4xx/5xx)
+        if (error.response && error.response.body) {
+            const status = error.response.statusCode || 500;
+            try {
+                const errorJson = JSON.parse(error.response.body);
+                res.status(status).json(errorJson);
+            } catch {
+                res.status(status).send(error.response.body);
+            }
         } else {
-            // Error lain (koneksi, timeout, dll)
+            // Error internal (network, timeout, dll)
             res.status(500).json({
                 status: false,
                 message: 'Internal server error',
-                error: error.message,
+                error: error.message
             });
         }
     }
 }
 
-// Daftar endpoint yang akan diproxy (sesuai dengan file example)
+// Daftar endpoint yang akan diproxy (sesuai file example)
 const endpoints = [
     'deposit/create',
     'deposit/status',
