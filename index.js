@@ -1,55 +1,48 @@
 const express = require('express');
 const path = require('path');
 const axios = require('axios');
-const cors = require('cors');
 const qs = require('qs');
 
 const app = express();
 
-// Setup views
+// Setup views untuk dokumentasi
 app.set('views', path.join(__dirname, 'views'));
 app.set('view engine', 'ejs');
 
-// Middleware
-app.use(cors()); // Izinkan akses dari mana saja
+// Middleware untuk parsing body (x-www-form-urlencoded dan JSON)
 app.use(express.urlencoded({ extended: true }));
 app.use(express.json());
 
-// Helper untuk forward request ke Atlantic
+// Halaman dokumentasi
+app.get('/', (req, res) => {
+    const baseUrl = req.protocol + '://' + req.get('host');
+    res.render('index', { baseUrl });
+});
+
+// Fungsi untuk meneruskan request ke Atlantic
 async function forwardRequest(req, res, endpoint) {
     try {
-        // Ambil semua data dari body (bisa dari x-www-form-urlencoded atau JSON)
-        const bodyData = req.body;
-        const headers = {
-            'Content-Type': req.get('Content-Type') || 'application/x-www-form-urlencoded',
-            // Anda bisa tambahkan header lain jika diperlukan
-        };
+        // Data dari request body (sudah di-parse oleh express)
+        const requestData = req.body;
 
-        // Tentukan URL tujuan
-        const targetUrl = `https://atlantich2h.com/${endpoint}`;
+        // Stringify data menggunakan qs (seperti di contoh)
+        const formData = qs.stringify(requestData);
 
-        // Pilih metode pengiriman sesuai content-type
-        let response;
-        if (headers['Content-Type'].includes('application/json')) {
-            response = await axios.post(targetUrl, bodyData, { headers });
-        } else {
-            // Untuk form-urlencoded, gunakan qs
-            const formData = qs.stringify(bodyData);
-            response = await axios.post(targetUrl, formData, {
-                headers: {
-                    'Content-Type': 'application/x-www-form-urlencoded',
-                },
-            });
-        }
+        // Kirim POST ke Atlantic
+        const response = await axios.post(`https://atlantich2h.com/${endpoint}`, formData, {
+            headers: {
+                'Content-Type': 'application/x-www-form-urlencoded',
+            },
+        });
 
-        // Kirim balik respons dari Atlantic
+        // Kirim respons dari Atlantic ke client (tanpa perubahan)
         res.status(response.status).json(response.data);
     } catch (error) {
         if (error.response) {
-            // Error dari Atlantic
+            // Ada respons error dari Atlantic (misal 400, 401, dll)
             res.status(error.response.status).json(error.response.data);
         } else {
-            // Error lain (network, dll)
+            // Error lain (koneksi, timeout, dll)
             res.status(500).json({
                 status: false,
                 message: 'Internal server error',
@@ -59,22 +52,19 @@ async function forwardRequest(req, res, endpoint) {
     }
 }
 
-// Halaman dokumentasi
-app.get('/', (req, res) => {
-    const baseUrl = req.protocol + '://' + req.get('host');
-    res.render('index', { baseUrl });
+// Daftar endpoint yang akan diproxy (sesuai dengan file example)
+const endpoints = [
+    'deposit/create',
+    'deposit/status',
+    'deposit/metode',
+    'transaksi/create',
+    'transaksi/status'
+];
+
+// Buat route POST untuk setiap endpoint
+endpoints.forEach(endpoint => {
+    app.post(`/${endpoint}`, (req, res) => forwardRequest(req, res, endpoint));
 });
-
-// ==================== ENDPOINT PROXY ====================
-
-// Deposit
-app.post('/deposit/create', (req, res) => forwardRequest(req, res, 'deposit/create'));
-app.post('/deposit/status', (req, res) => forwardRequest(req, res, 'deposit/status'));
-app.post('/deposit/metode', (req, res) => forwardRequest(req, res, 'deposit/metode'));
-
-// Transaksi
-app.post('/transaksi/create', (req, res) => forwardRequest(req, res, 'transaksi/create'));
-app.post('/transaksi/status', (req, res) => forwardRequest(req, res, 'transaksi/status'));
 
 // Export untuk Vercel
 module.exports = app;
